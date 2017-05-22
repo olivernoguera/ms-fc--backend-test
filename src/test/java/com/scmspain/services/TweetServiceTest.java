@@ -32,7 +32,27 @@ public class TweetServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldThrowAnExceptionWhenTweetLengthIsInvalid() throws Exception {
+    public void shouldThrowAnExceptionWhenMaxLength() throws Exception {
         tweetService.publishTweet("Pirate", "LeChuck? He's the guy that went to the Governor's for dinner and never wanted to leave. He fell for her in a big way, but she told him to drop dead. So he did. Then things really got ugly.");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowAnExceptionWhenEmptyLength() throws Exception {
+        tweetService.publishTweet("Pirate", "");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowAnExceptionWhenNullTweet() throws Exception {
+        tweetService.publishTweet("Pirate", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowAnExceptionWhenEmptyPublisher() throws Exception {
+        tweetService.publishTweet("", "Correct tweet");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowAnExceptionWhenNullPublisher() throws Exception {
+        tweetService.publishTweet(null, "Correct tweet");
     }
 }
