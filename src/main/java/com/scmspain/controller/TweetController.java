@@ -1,5 +1,6 @@
 package com.scmspain.controller;
 
+import com.scmspain.controller.command.DiscardTweetCommand;
 import com.scmspain.controller.command.PublishTweetCommand;
 import com.scmspain.entities.Tweet;
 import com.scmspain.services.TweetService;
@@ -15,6 +16,8 @@ import java.util.List;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 
 @RestController
 public class TweetController {
@@ -35,7 +38,13 @@ public class TweetController {
         this.tweetService.publishTweet(publishTweetCommand.getPublisher(), publishTweetCommand.getTweet());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
+    @PostMapping("/discarded")
+    @ResponseStatus(OK)
+    public void publishDiscardedTweet(@RequestBody DiscardTweetCommand discardTweetCommand) {
+        this.tweetService.discardTweet(discardTweetCommand.getTweetId());
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
     @ResponseStatus(BAD_REQUEST)
     @ResponseBody
     public Object invalidArgumentException(IllegalArgumentException ex) {

@@ -33,11 +33,12 @@ public class TweetService {
             tweet.setPublisher(publisher);
 
             this.metricWriter.increment(new Delta<Number>("published-tweets", 1));
-            this.tweetPersistence.save(tweet);
+            this.tweetPersistence.upsert(tweet);
         } else {
             throw new IllegalArgumentException("Tweet must not be greater than 140 characters");
         }
     }
+
 
 
     /**
@@ -47,7 +48,23 @@ public class TweetService {
     public List<Tweet> listAllTweets() {
 
         this.metricWriter.increment(new Delta<Number>("times-queried-tweets", 1));
-        List<Tweet> tweets = this.tweetPersistence.findTweets();
+        List<Tweet> tweets = this.tweetPersistence.findPublishTweets();
         return tweets;
     }
+
+    /**
+     Mark tweet how discard
+     Parameter - tweetId - identifies tweet
+     if tweetId not exist do nothing
+     */
+    public void discardTweet(Long tweetId) {
+
+        Tweet tweet = this.tweetPersistence.findById(tweetId);
+        if( tweet != null){
+            tweet.setDiscarded(true);
+            this.tweetPersistence.upsert(tweet);
+        }
+    }
+
+
 }

@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -38,7 +40,7 @@ public class TweetPersistenceTest {
         Tweet tweet = new Tweet();
         tweet.setTweet("Guybrush Threepwood");
         tweet.setPublisher("I am Guybrush Threepwood, mighty pirate.");
-        tweetPersistence.save(tweet);
+        tweetPersistence.upsert(tweet);
 
         verify(entityManager).persist(any(Tweet.class));
     }
@@ -47,7 +49,7 @@ public class TweetPersistenceTest {
     public void shouldGetTweetsPersistenceException() throws Exception {
 
         when(entityManager.createQuery(anyString())).thenThrow(PersistenceException.class);
-        tweetPersistence.findTweets();
+        tweetPersistence.findPublishTweets();
 
     }
 
@@ -68,7 +70,7 @@ public class TweetPersistenceTest {
 
         when(queryMock.getResultList()).thenReturn(tweetList);
 
-        List<Tweet> tweetsResult = tweetPersistence.findTweets();
+        List<Tweet> tweetsResult = tweetPersistence.findPublishTweets();
         Tweet firstTweet =
                 tweetsResult.stream().filter(t->t.getId().equals(tweet1.getId())).findFirst().get();
 
@@ -77,7 +79,28 @@ public class TweetPersistenceTest {
         Assert.assertThat(firstTweet.getTweet(), is(tweet1.getTweet()));
         Assert.assertThat(firstTweet.getPre2015MigrationStatus(), is(tweet1.getPre2015MigrationStatus()));
         Assert.assertThat(tweetsResult.size(), is(2));
+    }
 
 
+    @Test
+    public void findById() throws Exception {
+
+        Tweet tweet =  new Tweet("mockPublisher1","mockTweet1");
+        tweet.setId(1L);
+        when(entityManager.find(Tweet.class, 1L)).thenReturn(tweet);
+        Tweet actual = tweetPersistence.findById(1L);
+        assertNotNull(actual);
+        assertNotNull(actual.getId());
+        Assert.assertEquals(tweet.getId(),actual.getId());
+    }
+
+    @Test
+    public void findByIdNotExists() throws Exception {
+
+        Tweet tweet =  new Tweet("mockPublisher1","mockTweet1");
+        tweet.setId(1L);
+        when(entityManager.find(Tweet.class, 1L)).thenReturn(null);
+        Tweet actual = tweetPersistence.findById(1L);
+        assertNull(actual);
     }
 }

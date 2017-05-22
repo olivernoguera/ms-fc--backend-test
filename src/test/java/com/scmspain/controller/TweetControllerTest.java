@@ -36,7 +36,7 @@ public class TweetControllerTest {
     }
 
     @Test
-    public void shouldReturn200WhenInsertingAValidTweet() throws Exception {
+    public void shouldReturn201WhenInsertingAValidTweet() throws Exception {
         mockMvc.perform(newTweet("Prospect", "Breaking the law"))
             .andExpect(status().is(201));
     }
@@ -58,6 +58,26 @@ public class TweetControllerTest {
 
         String content = getResult.getResponse().getContentAsString();
         assertThat(new ObjectMapper().readValue(content, List.class).size()).isEqualTo(1);
+    }
+
+
+
+    @Test
+    public void shouldReturn200WhenDiscartingNotNumericTweet() throws Exception {
+        mockMvc.perform(discardTweet("test"))
+                .andExpect(status().is(400));
+    }
+
+    @Test
+    public void shouldReturn200WhenDiscartingAValidTweet() throws Exception {
+        mockMvc.perform(discardTweet("1"))
+                .andExpect(status().is(200));
+    }
+
+    public MockHttpServletRequestBuilder discardTweet(String tweetId) throws Exception {
+        return post("/discarded")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(format("{\"tweet\": \"%s\"}", tweetId));
     }
 
     private MockHttpServletRequestBuilder newTweet(String publisher, String tweet) {

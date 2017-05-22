@@ -19,8 +19,11 @@ public class TweetPersistence {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TweetPersistence.class);
-    private static final String GET_ALL_TWEETS_IDS = "SELECT t FROM Tweet AS t " +
-            " WHERE pre2015MigrationStatus <> 99 ORDER BY id DESC";
+    private static final String GET_PUBLISH_TWEETS = "SELECT t FROM Tweet AS t " +
+            " WHERE pre2015MigrationStatus <> 99 AND discarded = false ORDER BY id DESC";
+
+    private static final String GET_DISCARD_TWEETS = "SELECT t FROM Tweet AS t " +
+            " WHERE pre2015MigrationStatus <> 99 AND discarded = true ORDER BY id DESC";
 
     private EntityManager entityManager;
 
@@ -30,25 +33,33 @@ public class TweetPersistence {
 
     /**
      Push tweet to repository
-     Parameter - tweet - entity to save
+     Parameter - tweet - entity to upsert
      */
     @Transactional
-    public void save(Tweet tweet) {
+    public void upsert(Tweet tweet) {
         this.entityManager.persist(tweet);
     }
 
 
+    /**
+     Recover tweet from repository
+     Result - retrieved List of Tweet's
+     */
+    public List<Tweet> findPublishTweets() {
+
+        return getTweetsByQuery(GET_PUBLISH_TWEETS);
+    }
 
 
     /**
-     Recover tweet from repository
-     Result - retrieved List of Tweet id's
+     * Recover list of tweets for a query String
+     * @param - Quert  of set elements to list
+     * @return
      */
-    public List<Tweet> findTweets() {
-
+    private List<Tweet> getTweetsByQuery(String queryString) {
         List<Tweet> tweets = null;
         try{
-            final Query query = this.entityManager.createQuery(GET_ALL_TWEETS_IDS);
+            final Query query = this.entityManager.createQuery(queryString);
             tweets = query.getResultList();
         }catch (PersistenceException ex){
             LOGGER.error("Bad query ", ex);
@@ -59,5 +70,11 @@ public class TweetPersistence {
         return tweets;
     }
 
-
+    /**
+     Recover tweet from repository
+     Result - retrieved  Tweet
+     */
+    public Tweet findById(Long tweetId) {
+        return this.entityManager.find(Tweet.class,tweetId);
+    }
 }
