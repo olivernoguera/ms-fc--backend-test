@@ -7,7 +7,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @JsonPropertyOrder({"id", "publisher", "tweet", "pre2015MigrationStatus"})
@@ -33,6 +35,7 @@ public class Tweet {
     @Column (nullable = false)
     @JsonIgnore
     private Date lastUpdated;
+
 
     public Tweet() {
     }

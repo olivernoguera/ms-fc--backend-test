@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
 import javax.persistence.Query;
-import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -35,9 +34,11 @@ public class TweetPersistence {
      Push tweet to repository
      Parameter - tweet - entity to upsert
      */
-    @Transactional
-    public void upsert(Tweet tweet) {
+
+    public Long upsert(Tweet tweet) {
         this.entityManager.persist(tweet);
+        this.entityManager.flush();
+        return tweet.getId();
     }
 
 

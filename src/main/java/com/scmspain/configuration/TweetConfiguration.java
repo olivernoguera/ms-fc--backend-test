@@ -1,6 +1,7 @@
 package com.scmspain.configuration;
 
 import com.scmspain.controller.TweetController;
+import com.scmspain.persistence.TweetLinkPersistence;
 import com.scmspain.persistence.TweetPersistence;
 import com.scmspain.services.TweetService;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
@@ -11,14 +12,23 @@ import javax.persistence.EntityManager;
 
 @Configuration
 public class TweetConfiguration {
+
+
     @Bean
-    public TweetPersistence getTweetDao(EntityManager entityManager) {
+    public TweetPersistence getTweetPersistence(EntityManager entityManager) {
         return new TweetPersistence(entityManager);
     }
 
     @Bean
-    public TweetService getTweetService(MetricWriter metricWriter,TweetPersistence tweetDao) {
-        return new TweetService(metricWriter,tweetDao );
+    public TweetLinkPersistence getTweetLinkPersistence(EntityManager entityManager) {
+        return new TweetLinkPersistence(entityManager);
+    }
+
+    @Bean
+    public TweetService getTweetService(MetricWriter metricWriter,
+                                        TweetPersistence tweetPersistence,
+                                        TweetLinkPersistence tweetLinkPersistence ) {
+        return new TweetService(metricWriter,tweetPersistence ,tweetLinkPersistence);
     }
 
     @Bean

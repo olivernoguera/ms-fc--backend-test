@@ -1,7 +1,9 @@
 package com.scmspain.services;
 
 import com.scmspain.entities.Tweet;
+import com.scmspain.persistence.TweetLinkPersistence;
 import com.scmspain.persistence.TweetPersistence;
+import com.sun.org.apache.xpath.internal.operations.String;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -9,7 +11,6 @@ import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.when;
 public class TweetServiceTest {
 
     private TweetPersistence tweetPersistence;
+    private TweetLinkPersistence tweetLinkPersistence;
     private MetricWriter metricWriter;
     private TweetService tweetService;
 
@@ -25,7 +27,8 @@ public class TweetServiceTest {
 
         this.tweetPersistence = mock(TweetPersistence.class);
         this.metricWriter = mock(MetricWriter.class);
-        this.tweetService = new TweetService(metricWriter,tweetPersistence);
+        this.tweetLinkPersistence = mock(TweetLinkPersistence.class);
+        this.tweetService = new TweetService(metricWriter,tweetPersistence,tweetLinkPersistence);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -57,9 +60,11 @@ public class TweetServiceTest {
     public void publishTweetTest(){
 
         Tweet tweetExpected = new Tweet("MockPublisher", "MockTweet");
+        tweetExpected.setId(1L);
         ArgumentCaptor<Tweet> argument = ArgumentCaptor.forClass(Tweet.class);
 
-        doNothing().when(this.tweetPersistence).upsert(tweetExpected);
+        when(this.tweetPersistence.upsert(tweetExpected)).thenReturn(tweetExpected.getId());
+        when(this.tweetLinkPersistence.findLinksOfTweetId(anyLong())).thenReturn(null);
 
         tweetService.publishTweet(tweetExpected.getPublisher(), tweetExpected.getTweet());
         verify(this.tweetPersistence).upsert(argument.capture());
@@ -72,9 +77,10 @@ public class TweetServiceTest {
     public void discardTweetTest(){
 
         Tweet tweetExpected = new Tweet("MockPublisher", "MockTweet");
+        tweetExpected.setId(1L);
         ArgumentCaptor<Tweet> argument = ArgumentCaptor.forClass(Tweet.class);
-        ;
-        doNothing().when(this.tweetPersistence).upsert(tweetExpected);
+
+        when(this.tweetPersistence.upsert(tweetExpected)).thenReturn(tweetExpected.getId());
         when(this.tweetPersistence.findById(anyLong())).thenReturn(tweetExpected);
 
         tweetService.discardTweet(tweetExpected.getId());
@@ -89,7 +95,65 @@ public class TweetServiceTest {
         when(this.tweetPersistence.findById(anyLong())).thenReturn(null);
         tweetService.discardTweet(1L);
 
+    }
 
+
+    @Test
+    public void publishTweetTestWithMaxLenghAndLinks(){
+
+        StringBuffer link =  new StringBuffer("http://www.schibsted.es/ ");
+        StringBuffer text =  new StringBuffer("Tweet 14 size");
+        StringBuffer textTweet = new StringBuffer();
+        //10*14 = 140
+        addTextTimes(textTweet, text, 10);
+        addTextTimes(textTweet,link, 4);
+        Tweet tweetExpected = new Tweet("MockPublisher",textTweet.toString());
+        tweetExpected.setId(1L);
+        ArgumentCaptor<Tweet> argument = ArgumentCaptor.forClass(Tweet.class);
+
+        when(this.tweetPersistence.upsert(tweetExpected)).thenReturn(tweetExpected.getId());
+        when(this.tweetLinkPersistence.findLinksOfTweetId(anyLong())).thenReturn(null);
+
+        tweetService.publishTweet(tweetExpected.getPublisher(), tweetExpected.getTweet());
+        verify(this.tweetPersistence).upsert(argument.capture());
+        assertEquals(false, argument.getValue().isDiscarded());
+    }
+
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void publishTweetTestWitMaxLenghAndBadLink(){
+
+        StringBuffer link =  new StringBuffer("http://www.schibsted.es/");
+        StringBuffer text =  new StringBuffer("Tweet  14 size");
+        StringBuffer textTweet = new StringBuffer();
+        //10*14 = 140
+        addTextTimes(textTweet, text, 10);
+        addTextTimes(textTweet,link, 1);
+        Tweet tweetExpected = new Tweet("MockPublisher",textTweet.toString()+"1");
+        tweetExpected.setId(1L);
+        tweetService.publishTweet(tweetExpected.getPublisher(), tweetExpected.getTweet());
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void publishTweetTestWithMoreMaxLenghAndLinks(){
+
+        StringBuffer link =  new StringBuffer("http://www.schibsted.es/ ");
+        StringBuffer text =  new StringBuffer("Tweet  14 size");
+        StringBuffer textTweet = new StringBuffer();
+        //10*14 = 140
+        addTextTimes(textTweet, text, 10);
+        addTextTimes(textTweet,link, 4);
+        Tweet tweetExpected = new Tweet("MockPublisher",textTweet.toString()+"1");
+        tweetExpected.setId(1L);
+        tweetService.publishTweet(tweetExpected.getPublisher(), tweetExpected.getTweet());
+    }
+
+    private static  void addTextTimes(StringBuffer buffer, StringBuffer patternToAdd, int times){
+        for(int i = 0; i < times; i++) {
+            buffer.append(patternToAdd);
+        }
     }
 
 }
