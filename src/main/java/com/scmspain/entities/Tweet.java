@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.util.Date;
 
 @Entity
 @JsonPropertyOrder({"id", "publisher", "tweet", "pre2015MigrationStatus"})
@@ -28,6 +29,10 @@ public class Tweet {
     @Column (nullable = false)
     @JsonIgnore
     private boolean discarded;
+
+    @Column (nullable = false)
+    @JsonIgnore
+    private Date lastUpdated;
 
     public Tweet() {
     }
@@ -77,6 +82,15 @@ public class Tweet {
         this.discarded = discarded;
     }
 
+
+    public Date getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Date lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -88,6 +102,7 @@ public class Tweet {
         if (id != null ? !id.equals(tweet1.id) : tweet1.id != null) return false;
         if (publisher != null ? !publisher.equals(tweet1.publisher) : tweet1.publisher != null) return false;
         if (tweet != null ? !tweet.equals(tweet1.tweet) : tweet1.tweet != null) return false;
+        if (lastUpdated != null ? !lastUpdated.equals(tweet1.lastUpdated) : tweet1.lastUpdated != null) return false;
         return pre2015MigrationStatus != null ? pre2015MigrationStatus.equals(tweet1.pre2015MigrationStatus) : tweet1.pre2015MigrationStatus == null;
 
     }
@@ -99,6 +114,7 @@ public class Tweet {
         result = 31 * result + (tweet != null ? tweet.hashCode() : 0);
         result = 31 * result + (pre2015MigrationStatus != null ? pre2015MigrationStatus.hashCode() : 0);
         result = 31 * result + (discarded ? 1 : 0);
+        result = 31 * result + (lastUpdated != null  ? lastUpdated.hashCode(): 0);
         return result;
     }
 }

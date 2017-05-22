@@ -6,6 +6,7 @@ import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -28,10 +29,9 @@ public class TweetService {
     public void publishTweet(String publisher, String text) {
 
         if (publisher != null && publisher.length() > 0 && text != null && text.length() > 0 && text.length() < 140) {
-            Tweet tweet = new Tweet();
-            tweet.setTweet(text);
-            tweet.setPublisher(publisher);
+            Tweet tweet = new Tweet(publisher,text);
             tweet.setDiscarded(false);
+            tweet.setLastUpdated(new Date());
 
             this.metricWriter.increment(new Delta<Number>("published-tweets", 1));
             this.tweetPersistence.upsert(tweet);
@@ -63,6 +63,7 @@ public class TweetService {
         Tweet tweet = this.tweetPersistence.findById(tweetId);
         if( tweet != null){
             tweet.setDiscarded(true);
+            tweet.setLastUpdated(new Date());
             this.metricWriter.increment(new Delta<Number>("discard-tweet", 1));
             this.tweetPersistence.upsert(tweet);
         }

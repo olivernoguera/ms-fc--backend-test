@@ -20,10 +20,10 @@ public class TweetPersistence {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TweetPersistence.class);
     private static final String GET_PUBLISH_TWEETS = "SELECT t FROM Tweet AS t " +
-            " WHERE pre2015MigrationStatus <> 99 AND discarded = false ORDER BY id DESC";
+            " WHERE pre2015MigrationStatus <> 99 AND discarded = false ORDER BY lastUpdated DESC";
 
     private static final String GET_DISCARD_TWEETS = "SELECT t FROM Tweet AS t " +
-            " WHERE pre2015MigrationStatus <> 99 AND discarded = true ORDER BY id DESC";
+            " WHERE pre2015MigrationStatus <> 99 AND discarded = true ORDER BY lastUpdated DESC";
 
     private EntityManager entityManager;
 
