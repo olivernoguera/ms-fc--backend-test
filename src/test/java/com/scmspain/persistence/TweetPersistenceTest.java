@@ -75,7 +75,7 @@ public class TweetPersistenceTest {
         Assert.assertThat(firstTweet.getId(), is(tweet1.getId()));
         Assert.assertThat(firstTweet.getPublisher(), is(tweet1.getPublisher()));
         Assert.assertThat(firstTweet.getTweet(), is(tweet1.getTweet()));
-        Assert.assertThat(tweetsResult, is(tweetList));
+        Assert.assertThat(firstTweet.getPre2015MigrationStatus(), is(tweet1.getPre2015MigrationStatus()));
         Assert.assertThat(tweetsResult.size(), is(2));
 
 
