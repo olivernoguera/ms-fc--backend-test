@@ -1,11 +1,14 @@
 package com.scmspain.entities;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
+@JsonPropertyOrder({"id", "publisher", "tweet", "pre2015MigrationStatus"})
 public class Tweet {
     @Id
     @GeneratedValue
@@ -18,6 +21,11 @@ public class Tweet {
     private Long pre2015MigrationStatus = 0L;
 
     public Tweet() {
+    }
+
+    public Tweet(String publisher, String tweet) {
+        this.publisher = publisher;
+        this.tweet = tweet;
     }
 
     public Long getId() {
@@ -51,5 +59,6 @@ public class Tweet {
     public void setPre2015MigrationStatus(Long pre2015MigrationStatus) {
         this.pre2015MigrationStatus = pre2015MigrationStatus;
     }
+
 
 }

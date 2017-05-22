@@ -20,7 +20,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class TweetController {
     private TweetService tweetService;
 
-    public TweetController(TweetService tweetService) {
+    public TweetController(final TweetService tweetService) {
         this.tweetService = tweetService;
     }
 
