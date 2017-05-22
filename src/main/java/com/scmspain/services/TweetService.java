@@ -31,6 +31,7 @@ public class TweetService {
             Tweet tweet = new Tweet();
             tweet.setTweet(text);
             tweet.setPublisher(publisher);
+            tweet.setDiscarded(false);
 
             this.metricWriter.increment(new Delta<Number>("published-tweets", 1));
             this.tweetPersistence.upsert(tweet);
@@ -42,12 +43,12 @@ public class TweetService {
 
 
     /**
-     Recover tweets from repository
-     Result - retrieved Tweets
+     Recover Published tweets from repository
+     Result - retrieved publish Tweets
      */
-    public List<Tweet> listAllTweets() {
+    public List<Tweet> listPusblishTweets() {
 
-        this.metricWriter.increment(new Delta<Number>("times-queried-tweets", 1));
+        this.metricWriter.increment(new Delta<Number>("times-tweets-publish", 1));
         List<Tweet> tweets = this.tweetPersistence.findPublishTweets();
         return tweets;
     }
@@ -62,9 +63,19 @@ public class TweetService {
         Tweet tweet = this.tweetPersistence.findById(tweetId);
         if( tweet != null){
             tweet.setDiscarded(true);
+            this.metricWriter.increment(new Delta<Number>("discard-tweet", 1));
             this.tweetPersistence.upsert(tweet);
         }
     }
 
 
+    /**
+     Recover Discarded tweets from repository
+     Result - retrieved discard Tweets
+     */
+    public List<Tweet> dlistDiscardedTweets() {
+        this.metricWriter.increment(new Delta<Number>("times-tweets-discarded", 1));
+        List<Tweet> tweets = this.tweetPersistence.findDiscardweets();
+        return tweets;
+    }
 }

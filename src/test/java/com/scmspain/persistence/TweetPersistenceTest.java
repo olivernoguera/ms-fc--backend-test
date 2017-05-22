@@ -54,7 +54,7 @@ public class TweetPersistenceTest {
     }
 
     @Test
-    public void shouldGetTweets() throws Exception {
+    public void shouldGetPublishTweets() throws Exception {
 
         Query queryMock = mock(Query.class);
         when(entityManager.createQuery(anyString())).thenReturn(queryMock);
@@ -62,10 +62,12 @@ public class TweetPersistenceTest {
         List<Tweet> tweetList = new ArrayList<>();
         Tweet tweet1 = new Tweet("mockPublisher1","mockTweet1");
         tweet1.setId(1L);
+        tweet1.setDiscarded(false);
         tweetList.add(tweet1);
 
         Tweet tweet2 = new Tweet("mockPublisher2","mockTweet2");
         tweet2.setId(2L);
+        tweet2.setDiscarded(false);
         tweetList.add(tweet2);
 
         when(queryMock.getResultList()).thenReturn(tweetList);
@@ -79,6 +81,7 @@ public class TweetPersistenceTest {
         Assert.assertThat(firstTweet.getTweet(), is(tweet1.getTweet()));
         Assert.assertThat(firstTweet.getPre2015MigrationStatus(), is(tweet1.getPre2015MigrationStatus()));
         Assert.assertThat(tweetsResult.size(), is(2));
+        Assert.assertThat(tweetsResult, is(tweetList));
     }
 
 
@@ -102,5 +105,37 @@ public class TweetPersistenceTest {
         when(entityManager.find(Tweet.class, 1L)).thenReturn(null);
         Tweet actual = tweetPersistence.findById(1L);
         assertNull(actual);
+    }
+
+
+    @Test
+    public void shouldGetDiscardTweets() throws Exception {
+
+        Query queryMock = mock(Query.class);
+        when(entityManager.createQuery(anyString())).thenReturn(queryMock);
+
+        List<Tweet> tweetList = new ArrayList<>();
+        Tweet tweet1 = new Tweet("mockPublisher1","mockTweet1");
+        tweet1.setId(1L);
+        tweet1.setDiscarded(true);
+        tweetList.add(tweet1);
+
+        Tweet tweet2 = new Tweet("mockPublisher2","mockTweet2");
+        tweet2.setId(2L);
+        tweet2.setDiscarded(true);
+        tweetList.add(tweet2);
+
+        when(queryMock.getResultList()).thenReturn(tweetList);
+
+        List<Tweet> tweetsResult = tweetPersistence.findDiscardweets();
+        Tweet firstTweet =
+                tweetsResult.stream().filter(t->t.getId().equals(tweet1.getId())).findFirst().get();
+
+        Assert.assertThat(firstTweet.getId(), is(tweet1.getId()));
+        Assert.assertThat(firstTweet.getPublisher(), is(tweet1.getPublisher()));
+        Assert.assertThat(firstTweet.getTweet(), is(tweet1.getTweet()));
+        Assert.assertThat(firstTweet.getPre2015MigrationStatus(), is(tweet1.getPre2015MigrationStatus()));
+        Assert.assertThat(tweetsResult.size(), is(2));
+        Assert.assertThat(tweetsResult, is(tweetList));
     }
 }

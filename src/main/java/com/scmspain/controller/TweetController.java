@@ -28,8 +28,13 @@ public class TweetController {
     }
 
     @GetMapping("/tweet")
-    public List<Tweet> listAllTweets() {
-        return this.tweetService.listAllTweets();
+    public List<Tweet> listPublishTweets() {
+        return this.tweetService.listPusblishTweets();
+    }
+
+    @GetMapping("/discarded")
+    public List<Tweet> listDiscardedTweets() {
+        return this.tweetService.dlistDiscardedTweets();
     }
 
     @PostMapping("/tweet")

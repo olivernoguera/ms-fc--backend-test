@@ -27,7 +27,7 @@ public class Tweet {
 
     @Column (nullable = false)
     @JsonIgnore
-    private boolean discarded = false;
+    private boolean discarded;
 
     public Tweet() {
     }

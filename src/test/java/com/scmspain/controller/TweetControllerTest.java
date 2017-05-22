@@ -1,7 +1,9 @@
 package com.scmspain.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scmspain.configuration.TestConfiguration;
+import com.scmspain.entities.Tweet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.String.format;
@@ -26,6 +29,9 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestConfiguration.class)
 public class TweetControllerTest {
+
+
+    private final static TypeReference<ArrayList<Tweet>> TYPE_OF_LIST_TWEETS = new TypeReference<ArrayList<Tweet>>() {};
     @Autowired
     private WebApplicationContext context;
     private MockMvc mockMvc;
@@ -57,9 +63,25 @@ public class TweetControllerTest {
                 .andReturn();
 
         String content = getResult.getResponse().getContentAsString();
-        assertThat(new ObjectMapper().readValue(content, List.class).size()).isEqualTo(1);
+        List<Tweet> publishTweets = new ObjectMapper().readValue(content, TYPE_OF_LIST_TWEETS);
+        assertThat(publishTweets.size()).isEqualTo(1);
     }
 
+
+    @Test
+    public void shouldReturnAllDiscardTweets() throws Exception {
+        mockMvc.perform(discardTweet("1"))
+                .andExpect(status().is(200));
+
+        MvcResult getResult = mockMvc.perform(get("/discarded"))
+                .andExpect(status().is(200))
+                .andReturn();
+
+        String content = getResult.getResponse().getContentAsString();
+        List<Tweet> discardTweets = new ObjectMapper().readValue(content, TYPE_OF_LIST_TWEETS);
+        assertThat(discardTweets.size()).isEqualTo(1);
+
+    }
 
 
     @Test

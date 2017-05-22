@@ -42,7 +42,7 @@ public class TweetPersistence {
 
 
     /**
-     Recover tweet from repository
+     Recover Published tweets from repository
      Result - retrieved List of Tweet's
      */
     public List<Tweet> findPublishTweets() {
@@ -76,5 +76,14 @@ public class TweetPersistence {
      */
     public Tweet findById(Long tweetId) {
         return this.entityManager.find(Tweet.class,tweetId);
+    }
+
+
+    /**
+     Recover Discarded tweets from repository
+     Result - retrieved List of Tweet's
+     */
+    public List<Tweet> findDiscardweets() {
+        return getTweetsByQuery(GET_DISCARD_TWEETS);
     }
 }
