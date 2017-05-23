@@ -1,6 +1,7 @@
 package com.scmspain.persistence;
 
 import com.scmspain.entities.Tweet;
+import com.scmspain.entities.TypeTweet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -12,17 +13,19 @@ import java.util.List;
 
 /**
  * Created by olivernoguera on 22/05/2017.
+ *
+ * This class is reponsible for persistence of tweets.So get this tweets.
+ * Contains published tweets and discarded
  */
 @Repository
 public class TweetPersistence {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TweetPersistence.class);
-    private static final String GET_PUBLISH_TWEETS = "SELECT t FROM Tweet AS t " +
-            " WHERE pre2015MigrationStatus <> 99 AND discarded = false ORDER BY lastUpdated DESC";
+    private static final String GET_PUBLISH_BY_TYPE = "SELECT t FROM Tweet AS t " +
+            " WHERE pre2015MigrationStatus <> 99 AND type = %d ORDER BY lastUpdated DESC";
 
-    private static final String GET_DISCARD_TWEETS = "SELECT t FROM Tweet AS t " +
-            " WHERE pre2015MigrationStatus <> 99 AND discarded = true ORDER BY lastUpdated DESC";
+
 
     private EntityManager entityManager;
 
@@ -43,12 +46,12 @@ public class TweetPersistence {
 
 
     /**
-     Recover Published tweets from repository
+     Recover Published tweets from repository by Type
      Result - retrieved List of Tweet's
      */
-    public List<Tweet> findPublishTweets() {
+    public List<Tweet> findTweetsByType(TypeTweet typeTweet) {
 
-        return getTweetsByQuery(GET_PUBLISH_TWEETS);
+        return getTweetsByQuery(String.format(GET_PUBLISH_BY_TYPE, typeTweet.getType()));
     }
 
 
@@ -79,12 +82,4 @@ public class TweetPersistence {
         return this.entityManager.find(Tweet.class,tweetId);
     }
 
-
-    /**
-     Recover Discarded tweets from repository
-     Result - retrieved List of Tweet's
-     */
-    public List<Tweet> findDiscardweets() {
-        return getTweetsByQuery(GET_DISCARD_TWEETS);
-    }
 }

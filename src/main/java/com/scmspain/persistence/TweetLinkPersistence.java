@@ -1,6 +1,5 @@
 package com.scmspain.persistence;
 
-import com.scmspain.entities.Tweet;
 import com.scmspain.entities.TweetLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class TweetLinkPersistence {
             final Query query = this.entityManager.createQuery(qurery);
             tweetLinks = query.getResultList();
         }catch (PersistenceException ex){
-            LOGGER.error("Bad query ", ex);
+            LOGGER.error(ex.getMessage(), ex);
             throw new IllegalArgumentException(ex.getMessage(),ex);
         }
 

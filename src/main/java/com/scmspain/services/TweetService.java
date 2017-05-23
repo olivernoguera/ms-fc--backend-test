@@ -2,6 +2,7 @@ package com.scmspain.services;
 
 import com.scmspain.entities.Tweet;
 import com.scmspain.entities.TweetLink;
+import com.scmspain.entities.TypeTweet;
 import com.scmspain.persistence.TweetLinkPersistence;
 import com.scmspain.persistence.TweetPersistence;
 import org.springframework.boot.actuate.metrics.writer.Delta;
@@ -15,7 +16,15 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
+/**
+ *  This class is responsible to control logical of tweets
+ *  This service has all user cases of tweets
+ *  1. Publish Tweet
+ *  2. Get publisehd tweets.
+ *  3. Discard tweet
+ *  4. Get discarded tweets.
+ *
+ */
 
 @Service
 public class TweetService {
@@ -36,7 +45,8 @@ public class TweetService {
     }
 
     /**
-      Push tweet to repository
+      Push tweet and links into repositories.It annoted with transational to encapsulate in one trasaction
+       both repositories access
       Parameter - publisher - creator of the Tweet
       Parameter - text - Content of the Tweet
       Result - recovered Tweet
@@ -50,7 +60,7 @@ public class TweetService {
                 throw new IllegalArgumentException("Tweet must not be greater than 140 characters");
             }
             Tweet tweet = new Tweet(publisher,textWithoutLinks);
-            tweet.setDiscarded(false);
+            tweet.setType(TypeTweet.PUBLISHED);
             tweet.setLastUpdated(new Date());
 
             this.metricWriter.increment(new Delta<Number>("published-tweets", 1));
@@ -73,7 +83,7 @@ public class TweetService {
     public List<Tweet> listPusblishTweets() {
 
         this.metricWriter.increment(new Delta<Number>("times-tweets-publish", 1));
-        List<Tweet> tweets = this.tweetPersistence.findPublishTweets();
+        List<Tweet> tweets = this.tweetPersistence.findTweetsByType(TypeTweet.PUBLISHED);
         addLinksToTweets(tweets);
         return tweets;
     }
@@ -96,10 +106,12 @@ public class TweetService {
 
         Tweet tweet = this.tweetPersistence.findById(tweetId);
         if( tweet != null){
-            tweet.setDiscarded(true);
+            tweet.setType(TypeTweet.DISCARDED);
             tweet.setLastUpdated(new Date());
             this.metricWriter.increment(new Delta<Number>("discard-tweet", 1));
             this.tweetPersistence.upsert(tweet);
+        }else{
+            throw new IllegalArgumentException(String.format("Tweet %d not exists", tweetId));
         }
     }
 
@@ -110,7 +122,7 @@ public class TweetService {
      */
     public List<Tweet> dlistDiscardedTweets() {
         this.metricWriter.increment(new Delta<Number>("times-tweets-discarded", 1));
-        List<Tweet> tweets = this.tweetPersistence.findDiscardweets();
+        List<Tweet> tweets = this.tweetPersistence.findTweetsByType(TypeTweet.DISCARDED);
         addLinksToTweets(tweets);
         return tweets;
     }

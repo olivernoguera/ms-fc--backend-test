@@ -1,6 +1,7 @@
 package com.scmspain.persistence;
 
 import com.scmspain.entities.Tweet;
+import com.scmspain.entities.TypeTweet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class TweetPersistenceTest {
     public void shouldGetTweetsPersistenceException() throws Exception {
 
         when(entityManager.createQuery(anyString())).thenThrow(PersistenceException.class);
-        tweetPersistence.findPublishTweets();
+        tweetPersistence.findTweetsByType(TypeTweet.PUBLISHED);
 
     }
 
@@ -62,17 +63,17 @@ public class TweetPersistenceTest {
         List<Tweet> tweetList = new ArrayList<>();
         Tweet tweet1 = new Tweet("mockPublisher1","mockTweet1");
         tweet1.setId(1L);
-        tweet1.setDiscarded(false);
+        tweet1.setType(TypeTweet.PUBLISHED);
         tweetList.add(tweet1);
 
         Tweet tweet2 = new Tweet("mockPublisher2","mockTweet2");
         tweet2.setId(2L);
-        tweet2.setDiscarded(false);
+        tweet2.setType(TypeTweet.PUBLISHED);
         tweetList.add(tweet2);
 
         when(queryMock.getResultList()).thenReturn(tweetList);
 
-        List<Tweet> tweetsResult = tweetPersistence.findPublishTweets();
+        List<Tweet> tweetsResult = tweetPersistence.findTweetsByType(TypeTweet.PUBLISHED);
         Tweet firstTweet =
                 tweetsResult.stream().filter(t->t.getId().equals(tweet1.getId())).findFirst().get();
 
@@ -117,17 +118,17 @@ public class TweetPersistenceTest {
         List<Tweet> tweetList = new ArrayList<>();
         Tweet tweet1 = new Tweet("mockPublisher1","mockTweet1");
         tweet1.setId(1L);
-        tweet1.setDiscarded(true);
+        tweet1.setType(TypeTweet.PUBLISHED);
         tweetList.add(tweet1);
 
         Tweet tweet2 = new Tweet("mockPublisher2","mockTweet2");
         tweet2.setId(2L);
-        tweet2.setDiscarded(true);
+        tweet2.setType(TypeTweet.PUBLISHED);
         tweetList.add(tweet2);
 
         when(queryMock.getResultList()).thenReturn(tweetList);
 
-        List<Tweet> tweetsResult = tweetPersistence.findDiscardweets();
+        List<Tweet> tweetsResult = tweetPersistence.findTweetsByType(TypeTweet.DISCARDED);
         Tweet firstTweet =
                 tweetsResult.stream().filter(t->t.getId().equals(tweet1.getId())).findFirst().get();
 

@@ -13,18 +13,18 @@ public class TweetTest {
     public void equalsTest() throws Exception {
         Tweet tweet = new Tweet("publisher", "tweet");
         tweet.setId(1L);
-        tweet.setDiscarded(false);
+        tweet.setType(TypeTweet.PUBLISHED);
         Tweet tweet2 = new Tweet("publisher", "tweet");
         tweet2.setId(1L);
-        tweet2.setDiscarded(false);
+        tweet2.setType(TypeTweet.PUBLISHED);
 
         Assert.assertEquals(tweet,tweet);
         Assert.assertEquals(tweet,tweet2);
 
-        tweet2.setDiscarded(true);
+        tweet2.setType(TypeTweet.DISCARDED);
         Assert.assertNotEquals(tweet,tweet2);
 
-        tweet2.setDiscarded(false);
+        tweet2.setType(TypeTweet.PUBLISHED);
         Assert.assertEquals(tweet,tweet2);
         tweet2.setId(2L);
         Assert.assertNotEquals(tweet,tweet2);
@@ -54,18 +54,18 @@ public class TweetTest {
 
         Tweet tweet = new Tweet("publisher", "tweet");
         tweet.setId(1L);
-        tweet.setDiscarded(false);
+        tweet.setType(TypeTweet.PUBLISHED);
         Tweet tweet2 = new Tweet("publisher", "tweet");
         tweet2.setId(1L);
-        tweet2.setDiscarded(false);
+        tweet2.setType(TypeTweet.PUBLISHED);
 
 
         Assert.assertEquals(tweet.hashCode(),tweet2.hashCode());
 
-        tweet2.setDiscarded(true);
+        tweet2.setType(TypeTweet.DISCARDED);
         Assert.assertNotEquals(tweet.hashCode(),tweet2.hashCode());
 
-        tweet2.setDiscarded(false);
+        tweet2.setType(TypeTweet.PUBLISHED);
         Assert.assertEquals(tweet.hashCode(),tweet2.hashCode());
         tweet2.setId(2L);
         Assert.assertNotEquals(tweet.hashCode(),tweet2.hashCode());
